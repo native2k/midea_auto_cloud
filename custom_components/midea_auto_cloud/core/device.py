@@ -349,6 +349,8 @@ class MiedaDevice(threading.Thread):
 
             cloud = self._cloud
             if cloud and hasattr(cloud, "send_device_control"):
+                if self._device_type == 0xAC:
+                    MideaLogger.debug(f"Cloud control send (set_attribute): {nested_status}", self._device_id)
                 if isinstance(cloud, MSmartHomeCloud):
                     await cloud.send_device_control(
                         appliance_code=self._device_id,
@@ -396,6 +398,8 @@ class MiedaDevice(threading.Thread):
 
             cloud = self._cloud
             if cloud and hasattr(cloud, "send_device_control"):
+                if self._device_type == 0xAC:
+                    MideaLogger.debug(f"Cloud control send (set_attributes): {nested_status}", self._device_id)
                 if isinstance(cloud, MSmartHomeCloud):
                     await cloud.send_device_control(
                         appliance_code=self._device_id,
@@ -509,7 +513,8 @@ class MiedaDevice(threading.Thread):
 
 
     def _parse_cloud_message(self, status, update=True):
-        # MideaLogger.debug(f"Received: {decrypted}")
+        if self._device_type == 0xAC:
+            MideaLogger.debug(f"Cloud message received: {status}", self._device_id)
         new_status = {}
         calculated_outputs = self._calculated_get_output_names()
         # 对于有默认值的变量，在解析前先设置一次默认值
