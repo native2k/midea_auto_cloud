@@ -138,17 +138,17 @@ class MiedaDevice(threading.Thread):
         # 根据db_position调整T0xD9复式洗衣机的db_location
         db_position = self._attributes.get("db_position", 1)
         current_location = self._attributes.get("db_location", 1)
-        
+
         if db_position == 1:
             # db_position = 1，db_location 保持不变
             calculated_location = current_location
         elif db_position == 0:
             # db_position = 0，db_location 切换为另一个选项
             calculated_location = 2 if current_location == 1 else 1
-        
+
         if status is not None:
             status["db_location"] = calculated_location
-        
+
         return calculated_location
 
     def _sync_t0xd9_location_selection(self, location):
@@ -166,7 +166,7 @@ class MiedaDevice(threading.Thread):
         # 其他所有情况(包括standby、pause、off、error等)，控制状态应为pause
         else:
             control_status = "pause"
-        
+
         # 根据设备类型确定控制状态属性名
         if self._device_type == 0xD9:
             # T0xD9复式洗衣机使用db_control_status
@@ -177,7 +177,7 @@ class MiedaDevice(threading.Thread):
         else:
             # 默认使用control_status
             control_status_key = "control_status"
-        
+
         self._attributes[control_status_key] = control_status
 
     @property
@@ -430,8 +430,8 @@ class MiedaDevice(threading.Thread):
 
             cloud = self._cloud
             if cloud and hasattr(cloud, "send_device_control"):
-                if self._device_type == 0xAC:
-                    MideaLogger.debug(f"Cloud control send (set_attribute): {nested_status}", self._device_id)
+                # if self._device_type == 0xAC:
+                MideaLogger.debug(f"Cloud control send (set_attribute): {nested_status}", self._device_id)
                 if isinstance(cloud, MSmartHomeCloud):
                     return await cloud.send_device_control(
                         appliance_code=self._device_id,
@@ -483,8 +483,8 @@ class MiedaDevice(threading.Thread):
 
             cloud = self._cloud
             if cloud and hasattr(cloud, "send_device_control"):
-                if self._device_type == 0xAC:
-                    MideaLogger.debug(f"Cloud control send (set_attributes): {nested_status}", self._device_id)
+                # if self._device_type == 0xAC:
+                MideaLogger.debug(f"Cloud control send (set_attributes): {nested_status}", self._device_id)
                 if isinstance(cloud, MSmartHomeCloud):
                     return await cloud.send_device_control(
                         appliance_code=self._device_id,
@@ -629,8 +629,11 @@ class MiedaDevice(threading.Thread):
 
 
     def _parse_cloud_message(self, status, update=True):
-        if self._device_type == 0xAC:
-            MideaLogger.debug(f"Cloud message received: {status}", self._device_id)
+        # if self._device_type == 0xAC:
+        MideaLogger.debug(
+            f"Cloud message for device_type: {self._device_type}", self._device_id
+        )
+        MideaLogger.debug(f"Cloud message received: {status}", self._device_id)
         new_status = {}
         calculated_outputs = self._calculated_get_output_names()
         # 对于有默认值的变量，在解析前先设置一次默认值
