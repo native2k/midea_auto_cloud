@@ -368,10 +368,6 @@ DEVICE_MAPPING = {
         "calculate": {
             "get": [
                 {
-                    "lvalue": "[screen_display]",
-                    "rvalue": "[screen_display_now]"
-                },
-                {
                     "lvalue": "[real_time_power_value]",
                     "rvalue": "float([real_time_power]) / 10"
                 },
@@ -466,7 +462,13 @@ DEVICE_MAPPING = {
                 },
                 "screen_display": {
                     "device_class": SwitchDeviceClass.SWITCH,
-                    "translation_key": "display_on_off"
+                    "translation_key": "display_on_off",
+                    # Read state from screen_display_now when reported (string
+                    # or numeric, device dependent). Write numeric 0/100 unless
+                    # the device decodes screen_display as an on/off string, in
+                    # which case the wire format is mirrored.
+                    "state_attribute": "screen_display_now",
+                    "rationale": [0, 100],
                 },
                 "prevent_straight_wind": {
                     "device_class": SwitchDeviceClass.SWITCH,
@@ -528,12 +530,7 @@ DEVICE_MAPPING = {
         ],
         "centralized": ["buzzer"],
         "calculate":{
-            "get": [
-                {
-                    "lvalue": "[screen_display]",
-                    "rvalue": "[screen_display_now]"
-                },
-            ],
+            "get": [],
             "set": []
         },
         "entities": {
@@ -609,7 +606,13 @@ DEVICE_MAPPING = {
                 },
                 "screen_display": {
                     "device_class": SwitchDeviceClass.SWITCH,
-                    "translation_key": "display_on_off"
+                    "translation_key": "display_on_off",
+                    # Read state from screen_display_now when reported (string
+                    # or numeric, device dependent). Write numeric 0/100 unless
+                    # the device decodes screen_display as an on/off string, in
+                    # which case the wire format is mirrored.
+                    "state_attribute": "screen_display_now",
+                    "rationale": [0, 100],
                 },
                 "prevent_straight_wind": {
                     "device_class": SwitchDeviceClass.SWITCH,
@@ -1497,6 +1500,44 @@ DEVICE_MAPPING = {
             },
         }
     },
+    # T_0000_AC_26093137: wall AC with fresh-air module (fresh_air 0-3)
+    "26093137": {
+        "rationale": ["off", "on"],
+        "queries": [
+            {},
+            {"query_type": "fresh_air"},
+            {"query_type": "degerming"},
+        ],
+        "centralized": ["fresh_air", "fresh_air_mode", "fresh_air_fan_speed", "fresh_air_temp"],
+        "entities": {
+            Platform.FAN: {
+                "fan": {
+                    "translation_key": "fresh_air_fan",
+                    "power": "fresh_air",
+                    "rationale": [0, 3],
+                    "speeds": list(
+                        {"fresh_air": 3, "fresh_air_fan_speed": value + 1}
+                        for value in range(0, 100)
+                    ),
+                    # This Lua has no wind_strength; modes are distinguished by fresh_air_mode only.
+                    "preset_modes": {
+                        "heat_exchange": {"fresh_air_mode": 1},
+                        "rough_in": {"fresh_air_mode": 2},
+                        "smooth_in": {"fresh_air_mode": 3},
+                        "rough_out": {"fresh_air_mode": 4},
+                        "smooth_out": {"fresh_air_mode": 5},
+                    },
+                }
+            },
+            Platform.SWITCH: {
+                "degerming": {
+                    "device_class": SwitchDeviceClass.SWITCH,
+                    "rationale": ["off", "on"],
+                    "translation_key": "disinfect",
+                },
+            },
+        },
+    },
     "26093139": {
         "rationale": [0, 3],
         "queries": [{}, {"query_type": "run_status"}],
@@ -2209,12 +2250,7 @@ DEVICE_MAPPING = {
                     {"query_type": "wind_swing_ud_angle"}, {"query_type": "wind_swing_lr_angle"}],
         "centralized": ["buzzer"],
         "calculate":{
-            "get": [
-                {
-                    "lvalue": "[screen_display]",
-                    "rvalue": "[screen_display_now]"
-                },
-            ],
+            "get": [],
             "set": []
         },
         "entities": {
@@ -2292,6 +2328,12 @@ DEVICE_MAPPING = {
                 "screen_display": {
                     "device_class": SwitchDeviceClass.SWITCH,
                     "translation_key": "screen_close",
+                    # Read state from screen_display_now when reported (string
+                    # or numeric, device dependent). Write numeric 0/100 unless
+                    # the device decodes screen_display as an on/off string, in
+                    # which case the wire format is mirrored.
+                    "state_attribute": "screen_display_now",
+                    "rationale": [0, 100],
                 },
                 "prevent_straight_wind": {
                     "device_class": SwitchDeviceClass.SWITCH,
@@ -2331,12 +2373,7 @@ DEVICE_MAPPING = {
                     {"query_type": "wind_swing_ud_angle"}, {"query_type": "wind_swing_lr_angle"}],
         "centralized": ["buzzer"],
         "calculate":{
-            "get": [
-                {
-                    "lvalue": "[screen_display]",
-                    "rvalue": "[screen_display_now]"
-                },
-            ],
+            "get": [],
             "set": []
         },
         "entities": {
@@ -2422,6 +2459,12 @@ DEVICE_MAPPING = {
                 "screen_display": {
                     "device_class": SwitchDeviceClass.SWITCH,
                     "translation_key": "screen_close",
+                    # Read state from screen_display_now when reported (string
+                    # or numeric, device dependent). Write numeric 0/100 unless
+                    # the device decodes screen_display as an on/off string, in
+                    # which case the wire format is mirrored.
+                    "state_attribute": "screen_display_now",
+                    "rationale": [0, 100],
                 },
                 "prevent_super_cool": {
                     "device_class": SwitchDeviceClass.SWITCH,
